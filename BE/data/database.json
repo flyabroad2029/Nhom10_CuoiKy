@@ -1,0 +1,72 @@
+{
+  "rooms": {
+    "33": {
+      "password": "33",
+      "messages": [
+        {
+          "type": "chat",
+          "msgId": "1769525789790tw1ujyamfjo",
+          "user": "Hoàng Nam",
+          "avatar": "image/avatar1.jpg",
+          "message": "Hello",
+          "replyTo": null,
+          "time": "09:56 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "17695257938931raz9ecjb5zj",
+          "user": "Hoàng Nam",
+          "avatar": "image/avatar1.jpg",
+          "message": "Hi",
+          "replyTo": null,
+          "time": "09:56 PM",
+          "date": "27/1/2026"
+        }
+      ]
+    },
+    "LTM01": {
+      "password": "123",
+      "messages": [
+        {
+          "type": "chat",
+          "msgId": "1769507640793sjx91wql1fp",
+          "user": "director",
+          "avatar": "image/avatar1.jpg",
+          "message": "Chao Ban",
+          "replyTo": null,
+          "time": "04:54 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "17695076462669b46eo5ns5c",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "ok chao ban",
+          "replyTo": null,
+          "time": "04:54 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769507962451ujmirir83a",
+          "user": "employee9",
+          "avatar": "image/avatar1.jpg",
+          "message": "Chào mọi người",
+          "replyTo": null,
+          "time": "04:59 PM",
+          "date": "27/1/2026"
+        }
+      ]
+    },
+    "CL25_01": {
+      "password": "123",
+      "messages": []
+    },
+    "077204000929": {
+      "password": "123",
+      "messages": []
+    }
+  }
+}

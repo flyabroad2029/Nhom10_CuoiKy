@@ -1,0 +1,226 @@
+{
+  "rooms": {
+    "CL25": {
+      "password": "123",
+      "messages": []
+    },
+    "CL25_01": {
+      "password": "123",
+      "messages": [
+        {
+          "type": "chat",
+          "msgId": "1769504132275m8r8ulpc27",
+          "user": "employee9",
+          "avatar": "image/avatar4.jpg",
+          "message": "Chao ban",
+          "time": "03:55 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769504141042yxqmxfedl08",
+          "user": "employee9",
+          "avatar": "image/avatar4.jpg",
+          "message": "cho",
+          "time": "03:55 PM",
+          "date": "27/1/2026"
+        }
+      ]
+    },
+    "chatroomtest": {
+      "password": "1234",
+      "messages": [
+        {
+          "type": "chat",
+          "msgId": "1769504602401rmv1kcjzv5n",
+          "user": "director",
+          "avatar": "image/avatar1.jpg",
+          "message": "Chào Nam Nha",
+          "replyTo": null,
+          "time": "04:03 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "17695046119864ahab9wfvtz",
+          "user": "PHUONGNAM",
+          "avatar": "image/avatar3.jpg",
+          "message": "Chào Bạn",
+          "replyTo": null,
+          "time": "04:03 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769504631620dj3y8kt3o8j",
+          "user": "PHUONGNAM",
+          "avatar": "image/avatar3.jpg",
+          "message": "có gì ko",
+          "replyTo": null,
+          "time": "04:03 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "17695047326836ccekreejmx",
+          "user": "director",
+          "avatar": "image/avatar1.jpg",
+          "message": "có",
+          "replyTo": null,
+          "time": "04:05 PM",
+          "date": "27/1/2026"
+        }
+      ]
+    },
+    "RoomChat": {
+      "password": "1111",
+      "messages": [
+        {
+          "type": "chat",
+          "msgId": "1769504907259bagqqmp75ym",
+          "user": "employee9",
+          "avatar": "image/avatar1.jpg",
+          "message": "Chào Staff",
+          "replyTo": null,
+          "time": "04:08 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769504913113vxpqac9axw",
+          "user": "STAFF",
+          "avatar": "image/avatar6.jpg",
+          "message": "Chào Bạn",
+          "replyTo": null,
+          "time": "04:08 PM",
+          "date": "27/1/2026"
+        }
+      ]
+    },
+    "LTM01": {
+      "password": "123",
+      "messages": [
+        {
+          "type": "chat",
+          "msgId": "1769505547867p2p1ot07jnd",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "Chào Nam",
+          "replyTo": null,
+          "time": "04:19 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769505553811xnsqwxte6z",
+          "user": "VPNam",
+          "avatar": "image/avatar1.jpg",
+          "message": "Chào vvq",
+          "replyTo": null,
+          "time": "04:19 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "176950558409978jncmp2ari",
+          "user": "VPNam",
+          "avatar": "image/avatar1.jpg",
+          "message": "bạn muốn mình giuýp gì",
+          "replyTo": null,
+          "time": "04:19 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769505842283ld5sofqlsi",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "Tôi muốn bạn giuwps tôi code 1 phần mềm",
+          "replyTo": null,
+          "time": "04:24 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "176950585083548oz1iwji3u",
+          "user": "VPNam",
+          "avatar": "image/avatar1.jpg",
+          "message": "à tôi có thể",
+          "replyTo": null,
+          "time": "04:24 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "17695058683302tjx484gew6",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "Vây hãy trao đổi nha",
+          "replyTo": null,
+          "time": "04:24 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769506193795y6qpi6s3kr",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "mình sẽ giúp",
+          "replyTo": null,
+          "time": "04:29 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "17695062073474f8074s3sm5",
+          "user": "VPNam",
+          "avatar": "image/avatar1.jpg",
+          "message": "đầu tiên cảm ơn bạn",
+          "replyTo": null,
+          "time": "04:30 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769506290571voplxwiqbb",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "không có gì",
+          "replyTo": "17695062073474f8074s3sm5",
+          "time": "04:31 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769506546787cz2mmpen7a8",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "Vậy bạn cần làm gì",
+          "replyTo": null,
+          "time": "04:35 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "1769506585051b731yu9e4vk",
+          "user": "PHUONGNAM",
+          "avatar": "image/avatar1.jpg",
+          "message": "Tôi cần làm dự án websocket",
+          "replyTo": null,
+          "time": "04:36 PM",
+          "date": "27/1/2026"
+        },
+        {
+          "type": "chat",
+          "msgId": "176950659936298i0vg35ldn",
+          "user": "manager_vvq",
+          "avatar": "image/avatar1.jpg",
+          "message": "bạn làm đè tìa gì",
+          "replyTo": null,
+          "time": "04:36 PM",
+          "date": "27/1/2026"
+        }
+      ]
+    }
+  }
+}
