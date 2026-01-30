@@ -56,9 +56,22 @@
             
                 <h2 id="chatTitle">Kênh Chat Chung</h2>
                 
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button onclick="startCall()" class="header-action-btn call-btn">📞 <span class="btn-text">Gọi</span></button>
-                    <button onclick="outRoom()" class="header-action-btn exit-btn">🚪 <span class="btn-text">Thoát</span></button>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button onclick="startCall()" 
+                            class="header-action-btn call-btn" 
+                            style="display: flex; align-items: center; gap: 6px; background-color: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(39, 174, 96, 0.3);"
+                            onmouseover="this.style.backgroundColor='#2ecc71'; this.style.transform='translateY(-1px)'"
+                            onmouseout="this.style.backgroundColor='#27ae60'; this.style.transform='translateY(0)'">
+                        📞 <span class="btn-text">Gọi</span>
+                    </button>
+                
+                    <button onclick="outRoom()" 
+                            class="header-action-btn exit-btn" 
+                            style="display: flex; align-items: center; gap: 6px; background-color: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);"
+                            onmouseover="this.style.backgroundColor='#ff7675'; this.style.transform='translateY(-1px)'"
+                            onmouseout="this.style.backgroundColor='#e74c3c'; this.style.transform='translateY(0)'">
+                        🚪 <span class="btn-text">Thoát</span>
+                    </button>
                 </div>
             </div>
             
@@ -90,19 +103,24 @@
     </div>
 </div>
 
-<div id="videoContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.95); width:90%; max-width:800px; padding:20px; border-radius:20px; z-index:1000; flex-direction:column; align-items:center;">
-    <video id="localVideo" autoplay muted playsinline style="width:100%; max-height:400px; border-radius:10px; background:#222;"></video>
+<div id="videoContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(20,20,20,0.98); width:95%; max-width:900px; padding:20px; border-radius:24px; z-index:1000; flex-direction:column; align-items:center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #333;">
     
-    <div style="display: flex; gap: 15px; margin-top: 20px;">
-        <button id="toggleMic" onclick="toggleMic()" style="background: #444; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; min-width: 120px;">
+    <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 15px; overflow: hidden;">
+        <video id="remoteVideo" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+        
+        <video id="localVideo" autoplay muted playsinline style="position: absolute; top: 15px; right: 15px; width: 25%; max-width: 200px; border-radius: 10px; border: 2px solid #4ade80; background: #222; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"></video>
+    </div>
+
+    <div style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap; justify-content: center;">
+        <button id="toggleMic" onclick="toggleMic()" style="background: #333; color: white; border: 1px solid #444; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: bold; min-width: 130px; transition: 0.3s;">
             🎙️ Mic: Bật
         </button>
         
-        <button id="toggleCam" onclick="toggleCam()" style="background: #444; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; min-width: 120px;">
+        <button id="toggleCam" onclick="toggleCam()" style="background: #333; color: white; border: 1px solid #444; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: bold; min-width: 130px; transition: 0.3s;">
             📷 Cam: Bật
         </button>
         
-        <button onclick="endCall()" style="background:#e74c3c; color:white; border:none; padding:12px 30px; border-radius:30px; font-weight:bold; cursor:pointer;">
+        <button onclick="endCall()" style="background: #ff4757; color: white; border: none; padding: 12px 35px; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); transition: 0.3s;">
             Gác máy 📵
         </button>
     </div>
