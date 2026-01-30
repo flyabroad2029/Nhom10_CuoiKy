@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="image/logo.png">
+</head>
+<body>
+
+    <div class="login" id="login">
+        <div class="bg-circles">
+            <div class="circle-1"></div>
+            <div class="circle-2"></div>
+        </div>
+    
+        <div class="login-card">
+            <div class="card-header">
+                <h2>💬 M - Chat</h2>
+                <p>HỆ THỐNG TRÒ CHUYỆN THỜI GIAN THỰC ĐA PHÒNG</p>
+            </div>
+            
+            <div class="avatar-section">
+                <label style="color: orange;">Chọn ảnh đại diện của bạn</label>
+                <div class="avatar-selector" id="avatarSelector"></div>
+            </div>
+    
+            <div class="input-group">
+                <input id="username" placeholder="Tên hiển thị" maxlength="15">
+                <input id="roomId" placeholder="ID Phòng" maxlength="15">
+                <input id="roomPass" type="password" placeholder="Mật khẩu">
+            </div>
+    
+            <button type="button" class="btn-login" onclick="login()">
+                <span>Tham gia ngay</span>
+            </button>
+        </div>
+    </div>
+
+<div class="app" id="app" style="display:none;">
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3 id="roomDisplay">Phòng: ---</h3>
+                <span class="online-count" id="onlineCount">0</span>
+            </div>
+            <div class="user-list" id="userList"></div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header">
+                <h2 id="chatTitle">Kênh Chat Chung</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="startCall()" style="background:#27ae60; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold;">📞 Gọi nhóm</button>
+                    <button onclick="outRoom()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer;">🚪 Thoát</button>
+                </div>
+            </div>
+            <div class="messages" id="messages"></div>
+            
+            <div class="input-area">
+                <div class="reply-bar" id="replyBar">
+                    <div class="reply-info">
+                        <div class="reply-to">Đang trả lời <span id="replyToUser"></span></div>
+                        <div class="reply-text" id="replyToText"></div>
+                    </div>
+                    <div class="reply-close" onclick="cancelReply()">×</div>
+                </div>
+                <div class="input-box">
+                    <input id="msg" placeholder="Nhập tin nhắn..." onkeydown="enterSend(event)">
+                    <button type="button" onclick="send()">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="callPopup" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:15px; box-shadow:0 10px 40px rgba(0,0,0,0.3); z-index:9999; text-align:center; border:2px solid #27ae60;">
+    <h3 id="callMsg">Đang có cuộc gọi...</h3>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">
+        <button onclick="acceptCall()" style="background:#27ae60; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">Đồng ý</button>
+        <button onclick="rejectCall()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">Từ chối</button>
+    </div>
+</div>
+
+<div id="videoContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.95); width:90%; max-width:800px; padding:20px; border-radius:20px; z-index:1000; flex-direction:column; align-items:center;">
+    <video id="localVideo" autoplay muted playsinline style="width:100%; max-height:400px; border-radius:10px; background:#222;"></video>
+    
+    <div style="display: flex; gap: 15px; margin-top: 20px;">
+        <button id="toggleMic" onclick="toggleMic()" style="background: #444; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; min-width: 120px;">
+            🎙️ Mic: Bật
+        </button>
+        
+        <button id="toggleCam" onclick="toggleCam()" style="background: #444; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; min-width: 120px;">
+            📷 Cam: Bật
+        </button>
+        
+        <button onclick="endCall()" style="background:#e74c3c; color:white; border:none; padding:12px 30px; border-radius:30px; font-weight:bold; cursor:pointer;">
+            Gác máy 📵
+        </button>
+    </div>
+</div>
+
+<div class="emoji-picker" id="emojiPicker"></div>
+<script src="script.js"></script>
+</body>
+</html>
