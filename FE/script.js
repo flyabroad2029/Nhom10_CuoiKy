@@ -152,6 +152,10 @@ function login() {
     };
 
     ws.onerror = () => { alert("Không thể kết nối tới Server!"); };
+    ws.onclose = () => {
+        console.log("Ket noi da bi ngat");
+        alert("Mất kết nối tới Server! Vui lòng đăng nhập lại.");
+        location.reload(); // Tự động tải lại trang để reset
 }
 
 // --- HÀM KHỞI TẠO KẾT NỐI WEBRTC ---
