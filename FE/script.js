@@ -69,6 +69,8 @@ function login() {
     username = document.getElementById("username").value.trim();
     const roomId = document.getElementById("roomId").value.trim();
     const password = document.getElementById("roomPass").value.trim();
+    if (username.length < 2) return alert("Tên phải có ít nhất 2 ký tự!");
+    if (!roomId) return alert("Vui lòng nhập Mã phòng!");
 
     if (!username || !roomId || !password) return alert("Vui lòng nhập đầy đủ thông tin!");
 
