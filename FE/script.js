@@ -1,3 +1,4 @@
+const WS_URL = "ws://192.168.1.5:8080"; // Cau hinh dia chi Server
 let ws;
 let username, userAvatar, currentRoomId;
 let lastDate = "";
@@ -73,7 +74,7 @@ function login() {
 
     if (ws) ws.close();
 
-    ws = new WebSocket("ws://192.168.1.5:8080");
+    ws = new WebSocket(WS_URL);
 
     ws.onopen = () => {
         sessionStorage.setItem("chat_session", JSON.stringify({
