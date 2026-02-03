@@ -1,4 +1,4 @@
-const WS_URL = "ws://192.168.1.5:8080"; // Cau hinh dia chi Server
+const WS_URL = "ws://192.168.1.5:8080"; 
 let ws;
 let username, userAvatar, currentRoomId;
 let lastDate = "";
@@ -7,365 +7,431 @@ let messages = {};
 let localStream;
 let isMicOn = true;
 let isCamOn = true;
-
+let isIntentionalClose = false; // <--- Biến mới thêm
 // Cấu hình WebRTC
 let peerConnection;
-let currentOffer = null; 
+let currentOffer = null;
 const rtcConfig = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
 };
 
 const avatars = [
-    "image/avatar1.jpg",
-    "image/avatar2.jpg",
-    "image/avatar3.jpg",
-    "image/avatar4.jpg",
-    "image/avatar5.jpg",
-    "image/avatar6.jpg",
-    "image/avatar7.jpg",
+  "image/avatar1.jpg",
+  "image/avatar2.jpg",
+  "image/avatar3.jpg",
+  "image/avatar4.jpg",
+  "image/avatar5.jpg",
+  "image/avatar6.jpg",
+  "image/avatar7.jpg",
 ];
 
-const reactionEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡", "🔥", "👏", "💯", "🤔"];
+const reactionEmojis = [
+  "👍",
+  "❤️",
+  "😂",
+  "😮",
+  "😢",
+  "😡",
+  "🔥",
+  "👏",
+  "💯",
+  "🤔",
+];
 
 window.onload = () => {
-    initAvatarSelector();
-    const savedSession = JSON.parse(sessionStorage.getItem("chat_session"));
+  initAvatarSelector();
+  const savedSession = JSON.parse(sessionStorage.getItem("chat_session"));
 
-    if (savedSession) {
-        document.getElementById("username").value = savedSession.user || "";
-        document.getElementById("roomId").value = savedSession.roomId || "";
-        document.getElementById("roomPass").value = savedSession.password || "";
-        userAvatar = savedSession.avatar || avatars[0];
+  if (savedSession) {
+    document.getElementById("username").value = savedSession.user || "";
+    document.getElementById("roomId").value = savedSession.roomId || "";
+    document.getElementById("roomPass").value = savedSession.password || "";
+    userAvatar = savedSession.avatar || avatars[0];
 
-        document.querySelectorAll(".avatar-option").forEach((el) => {
-            if (el.innerHTML.includes(userAvatar)) el.classList.add("selected");
-            else el.classList.remove("selected");
-        });
+    document.querySelectorAll(".avatar-option").forEach((el) => {
+      if (el.innerHTML.includes(userAvatar)) el.classList.add("selected");
+      else el.classList.remove("selected");
+    });
 
-        login();
-    }
+    login();
+  }
 };
 
 function initAvatarSelector() {
-    const selector = document.getElementById("avatarSelector");
-    if (!selector) return;
-    selector.innerHTML = "";
+  const selector = document.getElementById("avatarSelector");
+  if (!selector) return;
+  selector.innerHTML = "";
 
-    avatars.forEach((avatar, index) => {
-        const div = document.createElement("div");
-        div.className = "avatar-option" + (index === 0 ? " selected" : "");
-        div.innerHTML = `<img src="${avatar}">`;
-        div.onclick = () => {
-            document.querySelectorAll(".avatar-option").forEach((el) => el.classList.remove("selected"));
-            div.classList.add("selected");
-            userAvatar = avatar;
-        };
-        selector.appendChild(div);
-    });
-    userAvatar = avatars[0];
+  avatars.forEach((avatar, index) => {
+    const div = document.createElement("div");
+    div.className = "avatar-option" + (index === 0 ? " selected" : "");
+    div.innerHTML = `<img src="${avatar}">`;
+    div.onclick = () => {
+      document
+        .querySelectorAll(".avatar-option")
+        .forEach((el) => el.classList.remove("selected"));
+      div.classList.add("selected");
+      userAvatar = avatar;
+    };
+    selector.appendChild(div);
+  });
+  userAvatar = avatars[0];
 }
 
 function login() {
-    username = document.getElementById("username").value.trim();
-    const roomId = document.getElementById("roomId").value.trim();
-    const password = document.getElementById("roomPass").value.trim();
-    if (username.length < 2) return alert("Tên phải có ít nhất 2 ký tự!");
-    if (!roomId) return alert("Vui lòng nhập Mã phòng!");
+  username = document.getElementById("username").value.trim();
+  const roomId = document.getElementById("roomId").value.trim();
+  const password = document.getElementById("roomPass").value.trim();
+  
+  if (username.length < 2) return alert("Tên phải có ít nhất 2 ký tự!");
+  if (!roomId) return alert("Vui lòng nhập Mã phòng!");
+  if (!username || !roomId || !password) return alert("Vui lòng nhập đầy đủ thông tin!");
 
-    if (!username || !roomId || !password) return alert("Vui lòng nhập đầy đủ thông tin!");
+  // Reset cờ chủ động đóng khi bắt đầu login mới
+  isIntentionalClose = false; 
 
-    if (ws) ws.close();
+  if (ws) ws.close();
 
-    ws = new WebSocket(WS_URL);
+  ws = new WebSocket(WS_URL);
 
-    ws.onopen = () => {
-        sessionStorage.setItem("chat_session", JSON.stringify({
-            user: username,
-            roomId,
-            password,
-            avatar: userAvatar,
-        }));
+  ws.onopen = () => {
+      sessionStorage.setItem(
+          "chat_session",
+          JSON.stringify({
+              user: username,
+              roomId,
+              password,
+              avatar: userAvatar,
+          })
+      );
 
-        ws.send(JSON.stringify({
-            type: "join",
-            user: username,
-            avatar: userAvatar,
-            roomId,
-            password,
-        }));
-    };
+      ws.send(
+          JSON.stringify({
+              type: "join",
+              user: username,
+              avatar: userAvatar,
+              roomId,
+              password,
+          })
+      );
+  };
 
-    ws.onmessage = async (event) => {
-        const data = JSON.parse(event.data);
+  ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
 
-        if (data.type === "error") {
-            alert(data.message);
-            sessionStorage.removeItem("chat_session");
-            ws.close();
-            document.getElementById("login").style.display = "flex";
-            document.getElementById("app").style.display = "none";
-        }
+      if (data.type === "error") {
+          alert(data.message); 
+          
+          // --- FIX 1: THÊM DÒNG NÀY ĐỂ KHÔNG BỊ LỖI KÉP ---
+          isIntentionalClose = true; 
+          // ------------------------------------------------
+          
+          sessionStorage.removeItem("chat_session");
+          ws.close();
+          document.getElementById("login").style.display = "flex";
+          document.getElementById("app").style.display = "none";
+          return; // Thêm return để dừng hàm luôn
+      }
 
-        if (data.type === "join_success") {
-            currentRoomId = data.roomId;
-            document.getElementById("login").style.display = "none";
-            document.getElementById("app").style.display = "block";
-            document.getElementById("roomDisplay").textContent = "Phòng: " + data.roomId;
-            document.getElementById("messages").innerHTML = "";
-            messages = {};
-            lastDate = "";
-            addSystem("Bạn đã tham gia phòng " + data.roomId);
-        }
+      if (data.type === "join_success") {
+          currentRoomId = data.roomId;
+          document.getElementById("login").style.display = "none";
+          document.getElementById("app").style.display = "block";
+          document.getElementById("roomDisplay").textContent = "Phòng: " + data.roomId;
+          document.getElementById("messages").innerHTML = "";
+          messages = {};
+          lastDate = "";
+          addSystem("Bạn đã tham gia phòng " + data.roomId);
+      }
 
-        if (data.type === "chat") {
-            messages[data.msgId] = data;
-            addMessageUI(data);
-        }
+      if (data.type === "chat") {
+          messages[data.msgId] = data;
+          addMessageUI(data);
+      }
 
-        if (data.type === "system") addSystem(data.message);
-        if (data.type === "users") updateUsers(data.users);
-        if (data.type === "reaction") addReaction(data.msgId, data.emoji);
-        if (data.type === "recall") recallMessage(data.msgId);
+      if (data.type === "system") addSystem(data.message);
+      if (data.type === "users") updateUsers(data.users);
+      if (data.type === "reaction") addReaction(data.msgId, data.emoji);
+      if (data.type === "recall") recallMessage(data.msgId);
 
-        // Xử lý tín hiệu gọi Video/Audio (WebRTC)
-        if (data.type === "call_signal") {
-            if (data.action === "request") {
-                currentOffer = data.offer;
-                document.getElementById("callPopup").style.display = "block";
-                document.getElementById("callMsg").textContent = `${data.user} đang gọi video...`;
-            } else if (data.action === "answer") {
-                if (peerConnection) {
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                }
-            }
-             else if (data.action === "candidate") {
-                if (peerConnection) {
-                    try {
-                        await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                    } catch (e) { console.error("Error adding candidate", e); }
-                }
-            } else if (data.action === "reject") {
-                addSystem(`${data.user} đã từ chối hoặc kết thúc cuộc gọi.`);
-                endCallUI();
-            }
-        }
-    };
+      // Xử lý tín hiệu gọi Video/Audio (WebRTC)
+      if (data.type === "call_signal") {
+          if (data.action === "request") {
+              currentOffer = data.offer;
+              iceCandidateQueue = []; // Reset hàng đợi
+              document.getElementById("callPopup").style.display = "block";
+              document.getElementById("callMsg").textContent = `${data.user} đang gọi video...`;
+          
+          } else if (data.action === "answer") {
+              if (peerConnection) {
+                  await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+              }
+          
+          } else if (data.action === "candidate") {
+              // --- FIX 2: SỬ DỤNG HÀNG ĐỢI ĐỂ TRÁNH MÀN HÌNH ĐEN ---
+              const candidate = new RTCIceCandidate(data.candidate);
+              if (peerConnection && peerConnection.remoteDescription) {
+                  peerConnection.addIceCandidate(candidate).catch(e => console.error(e));
+              } else {
+                  // Nếu chưa bắt máy, lưu vào hàng đợi
+                  iceCandidateQueue.push(candidate);
+              }
+              // -----------------------------------------------------
+          
+          } else if (data.action === "reject") {
+              addSystem(`${data.user} đã từ chối hoặc kết thúc cuộc gọi.`);
+              endCallUI();
+          }
+      }
+  };
 
-    ws.onerror = () => { alert("Không thể kết nối tới Server!"); };
-    ws.onclose = () => {
-        console.log("Ket noi da bi ngat");
-        alert("Mất kết nối tới Server! Vui lòng đăng nhập lại.");
-        location.reload(); // Tự động tải lại trang để reset
+  ws.onerror = () => {
+      alert("Không thể kết nối tới Server!");
+  };
+
+  ws.onclose = () => {
+      console.log("Kết nối đã bị ngắt");
+      // Kiểm tra cờ hiệu để quyết định có báo lỗi hay không
+      if (!isIntentionalClose) {
+          alert("Mất kết nối tới Server! Vui lòng đăng nhập lại.");
+          location.reload(); 
+      } else {
+          isIntentionalClose = false; 
+      }
+  };
 }
-
 // --- HÀM KHỞI TẠO KẾT NỐI WEBRTC ---
 function createPeerConnection() {
-    peerConnection = new RTCPeerConnection(rtcConfig);
+  peerConnection = new RTCPeerConnection(rtcConfig);
 
-    peerConnection.ontrack = (event) => {
-        let remoteVid = document.getElementById("remoteVideo");
-        if (!remoteVid) {
-            remoteVid = document.createElement("video");
-            remoteVid.id = "remoteVideo";
-            remoteVid.autoplay = true;
-            remoteVid.playsinline = true;
-            remoteVid.style.width = "100%";
-            remoteVid.style.maxHeight = "400px";
-            remoteVid.style.borderRadius = "10px";
-            remoteVid.style.background = "#000";
-            const container = document.getElementById("videoContainer");
-            container.insertBefore(remoteVid, container.firstChild);
-        }
-        remoteVid.srcObject = event.streams[0];
-    };
-
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            ws.send(JSON.stringify({
-                type: "call_signal",
-                action: "candidate",
-                candidate: event.candidate
-            }));
-        }
-    };
-
-    if (localStream) {
-        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+  peerConnection.ontrack = (event) => {
+    let remoteVid = document.getElementById("remoteVideo");
+    if (!remoteVid) {
+      remoteVid = document.createElement("video");
+      remoteVid.id = "remoteVideo";
+      remoteVid.autoplay = true;
+      remoteVid.playsinline = true;
+      remoteVid.style.width = "100%";
+      remoteVid.style.maxHeight = "400px";
+      remoteVid.style.borderRadius = "10px";
+      remoteVid.style.background = "#000";
+      const container = document.getElementById("videoContainer");
+      container.insertBefore(remoteVid, container.firstChild);
     }
+    remoteVid.srcObject = event.streams[0];
+  };
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      ws.send(
+        JSON.stringify({
+          type: "call_signal",
+          action: "candidate",
+          candidate: event.candidate,
+        })
+      );
+    }
+  };
+
+  if (localStream) {
+    localStream
+      .getTracks()
+      .forEach((track) => peerConnection.addTrack(track, localStream));
+  }
 }
 
 async function startCall() {
-    try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        document.getElementById("videoContainer").style.display = "flex";
-        document.getElementById("localVideo").srcObject = localStream;
-        
-        // Chỉnh UI video mình nhỏ lại
-        const localVid = document.getElementById("localVideo");
-        localVid.style.width = "120px";
-        localVid.style.position = "absolute";
-        localVid.style.bottom = "80px";
-        localVid.style.right = "20px";
-        localVid.style.border = "2px solid white";
-        localVid.style.zIndex = "10";
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    document.getElementById("videoContainer").style.display = "flex";
+    document.getElementById("localVideo").srcObject = localStream;
 
-        createPeerConnection();
+    // Chỉnh UI video mình nhỏ lại
+    const localVid = document.getElementById("localVideo");
+    localVid.style.width = "120px";
+    localVid.style.position = "absolute";
+    localVid.style.bottom = "80px";
+    localVid.style.right = "20px";
+    localVid.style.border = "2px solid white";
+    localVid.style.zIndex = "10";
 
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
+    createPeerConnection();
 
-        ws.send(JSON.stringify({ 
-            type: "call_signal", 
-            action: "request", 
-            offer: offer,
-            user: username 
-        }));
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
 
-        isMicOn = true; isCamOn = true;
-        updateMediaButtons();
-    } catch (err) {
-        alert("Lỗi truy cập Camera/Mic: " + err);
-    }
+    ws.send(
+      JSON.stringify({
+        type: "call_signal",
+        action: "request",
+        offer: offer,
+        user: username,
+      })
+    );
+
+    isMicOn = true;
+    isCamOn = true;
+    updateMediaButtons();
+  } catch (err) {
+    alert("Lỗi truy cập Camera/Mic: " + err);
+  }
 }
 
 async function acceptCall() {
-    document.getElementById("callPopup").style.display = "none";
-    try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        document.getElementById("videoContainer").style.display = "flex";
-        document.getElementById("localVideo").srcObject = localStream;
+  document.getElementById("callPopup").style.display = "none";
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    document.getElementById("videoContainer").style.display = "flex";
+    document.getElementById("localVideo").srcObject = localStream;
 
-        const localVid = document.getElementById("localVideo");
-        localVid.style.width = "120px";
-        localVid.style.position = "absolute";
-        localVid.style.bottom = "80px";
-        localVid.style.right = "20px";
-        localVid.style.border = "2px solid white";
-        localVid.style.zIndex = "10";
+    const localVid = document.getElementById("localVideo");
+    localVid.style.width = "120px";
+    localVid.style.position = "absolute";
+    localVid.style.bottom = "80px";
+    localVid.style.right = "20px";
+    localVid.style.border = "2px solid white";
+    localVid.style.zIndex = "10";
 
-        createPeerConnection();
+    createPeerConnection();
 
-        if (currentOffer) {
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(currentOffer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
+    if (currentOffer) {
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(currentOffer)
+      );
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
 
-            ws.send(JSON.stringify({ 
-                type: "call_signal", 
-                action: "answer", 
-                answer: answer 
-            }));
-        }
-        updateMediaButtons();
-    } catch (err) {
-        alert("Lỗi tham gia cuộc gọi: " + err);
+      ws.send(
+        JSON.stringify({
+          type: "call_signal",
+          action: "answer",
+          answer: answer,
+        })
+      );
     }
+    updateMediaButtons();
+  } catch (err) {
+    alert("Lỗi tham gia cuộc gọi: " + err);
+  }
 }
 
 function endCall() {
-    ws.send(JSON.stringify({ type: "call_signal", action: "reject", user: username }));
-    endCallUI();
+  ws.send(
+    JSON.stringify({ type: "call_signal", action: "reject", user: username })
+  );
+  endCallUI();
 }
 
 function endCallUI() {
-    if (localStream) localStream.getTracks().forEach((t) => t.stop());
-    if (peerConnection) {
-        peerConnection.close();
-        peerConnection = null;
-    }
-    document.getElementById("videoContainer").style.display = "none";
-    document.getElementById("callPopup").style.display = "none";
-    const remoteVid = document.getElementById("remoteVideo");
-    if (remoteVid) remoteVid.remove();
+  if (localStream) localStream.getTracks().forEach((t) => t.stop());
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+  document.getElementById("videoContainer").style.display = "none";
+  document.getElementById("callPopup").style.display = "none";
+  const remoteVid = document.getElementById("remoteVideo");
+  if (remoteVid) remoteVid.remove();
 }
 
 function rejectCall() {
-    document.getElementById("callPopup").style.display = "none";
-    ws.send(JSON.stringify({ type: "call_signal", action: "reject", user: username }));
+  document.getElementById("callPopup").style.display = "none";
+  ws.send(
+    JSON.stringify({ type: "call_signal", action: "reject", user: username })
+  );
 }
 
 function toggleMic() {
-    if (!localStream) return;
-    isMicOn = !isMicOn;
-    localStream.getAudioTracks().forEach((t) => (t.enabled = isMicOn));
-    updateMediaButtons();
+  if (!localStream) return;
+  isMicOn = !isMicOn;
+  localStream.getAudioTracks().forEach((t) => (t.enabled = isMicOn));
+  updateMediaButtons();
 }
 
 function toggleCam() {
-    if (!localStream) return;
-    isCamOn = !isCamOn;
-    localStream.getVideoTracks().forEach((t) => (t.enabled = isCamOn));
-    updateMediaButtons();
+  if (!localStream) return;
+  isCamOn = !isCamOn;
+  localStream.getVideoTracks().forEach((t) => (t.enabled = isCamOn));
+  updateMediaButtons();
 }
 
 function updateMediaButtons() {
-    const mBtn = document.getElementById("toggleMic");
-    const cBtn = document.getElementById("toggleCam");
-    if (mBtn) {
-        mBtn.textContent = isMicOn ? "🎙️ Mic: Bật" : "🔇 Mic: Tắt";
-        mBtn.style.background = isMicOn ? "#444" : "#e74c3c";
-    }
-    if (cBtn) {
-        cBtn.textContent = isCamOn ? "📷 Cam: Bật" : "🚫 Cam: Tắt";
-        cBtn.style.background = isCamOn ? "#444" : "#e74c3c";
-    }
+  const mBtn = document.getElementById("toggleMic");
+  const cBtn = document.getElementById("toggleCam");
+  if (mBtn) {
+    mBtn.textContent = isMicOn ? "🎙️ Mic: Bật" : "🔇 Mic: Tắt";
+    mBtn.style.background = isMicOn ? "#444" : "#e74c3c";
+  }
+  if (cBtn) {
+    cBtn.textContent = isCamOn ? "📷 Cam: Bật" : "🚫 Cam: Tắt";
+    cBtn.style.background = isCamOn ? "#444" : "#e74c3c";
+  }
 }
 
 // --- PHẦN LOGIC CHAT ---
 
 function outRoom() {
-    if (confirm("Thoát phòng và xóa phiên đăng nhập?")) {
-        sessionStorage.removeItem("chat_session");
-        if (ws) ws.close();
-        location.reload();
-    }
+  if (confirm("Thoát phòng và xóa phiên đăng nhập?")) {
+    sessionStorage.removeItem("chat_session");
+    isIntentionalClose = true;
+    if (ws) ws.close();
+    location.reload();
+  }
 }
 
 function send() {
-    const input = document.getElementById("msg");
-    if (!input.value.trim()) return;
+  const input = document.getElementById("msg");
+  if (!input.value.trim()) return;
 
-    ws.send(JSON.stringify({
-        type: "chat",
-        msgId: Date.now() + Math.random().toString(36).slice(2),
-        message: input.value,
-        replyTo: replyingTo,
-    }));
+  ws.send(
+    JSON.stringify({
+      type: "chat",
+      msgId: Date.now() + Math.random().toString(36).slice(2),
+      message: input.value,
+      replyTo: replyingTo,
+    })
+  );
 
-    input.value = "";
-    cancelReply();
+  input.value = "";
+  cancelReply();
 }
 
 function enterSend(e) {
-    if (e.key === "Enter") {
-        e.preventDefault();
-        send();
-    }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    send();
+  }
 }
 
 function addMessageUI(data) {
-    const messagesBox = document.getElementById("messages");
+  const messagesBox = document.getElementById("messages");
 
-    if (data.date !== lastDate) {
-        const d = document.createElement("div");
-        d.className = "date-separator";
-        d.innerHTML = `<span>${data.date}</span>`;
-        messagesBox.appendChild(d);
-        lastDate = data.date;
-    }
+  if (data.date !== lastDate) {
+    const d = document.createElement("div");
+    d.className = "date-separator";
+    d.innerHTML = `<span>${data.date}</span>`;
+    messagesBox.appendChild(d);
+    lastDate = data.date;
+  }
 
-    const isMe = data.user === username;
-    const wrapper = document.createElement("div");
-    wrapper.className = `message-wrapper ${isMe ? "right" : "left"}`;
-    wrapper.dataset.msgId = data.msgId;
+  const isMe = data.user === username;
+  const wrapper = document.createElement("div");
+  wrapper.className = `message-wrapper ${isMe ? "right" : "left"}`;
+  wrapper.dataset.msgId = data.msgId;
 
-    let replyHtml = "";
-    if (data.replyTo && messages[data.replyTo]) {
-        const rMsg = messages[data.replyTo];
-        replyHtml = `<div class="reply-preview"><strong>${rMsg.user}</strong>: ${rMsg.message}</div>`;
-    }
+  let replyHtml = "";
+  if (data.replyTo && messages[data.replyTo]) {
+    const rMsg = messages[data.replyTo];
+    replyHtml = `<div class="reply-preview"><strong>${rMsg.user}</strong>: ${rMsg.message}</div>`;
+  }
 
-    wrapper.innerHTML = `
+  wrapper.innerHTML = `
         <div class="message-avatar"><img src="${data.avatar}"></div>
         <div class="message-content">
             ${!isMe ? `<div class="message-header">${data.user}</div>` : ""}
@@ -376,134 +442,161 @@ function addMessageUI(data) {
                 <div class="reactions"></div>
             </div>
             <div class="message-actions">
-                <div class="action-btn" onclick="setReply('${data.msgId}','${data.user}')">↩️</div>
-                <div class="action-btn" onclick="showEmojiPicker(event,'${data.msgId}')">😀</div>
-                ${isMe ? `<div class="action-btn" onclick="recallMsg('${data.msgId}')">🗑️</div>` : ""}
+                <div class="action-btn" onclick="setReply('${data.msgId}','${
+    data.user
+  }')">↩️</div>
+                <div class="action-btn" onclick="showEmojiPicker(event,'${
+                  data.msgId
+                }')">😀</div>
+                ${
+                  isMe
+                    ? `<div class="action-btn" onclick="recallMsg('${data.msgId}')">🗑️</div>`
+                    : ""
+                }
             </div>
         </div>
     `;
 
-    messagesBox.appendChild(wrapper);
-    wrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+  messagesBox.appendChild(wrapper);
+  wrapper.scrollIntoView({ behavior: "smooth", block: "end" });
 }
 
 function showEmojiPicker(e, msgId) {
-    e.stopPropagation();
-    e.preventDefault();
-    const picker = document.getElementById("emojiPicker");
-    const messageWrapper = e.currentTarget.closest(".message-wrapper");
-    const messageContent = e.currentTarget.closest(".message-content");
+  e.stopPropagation();
+  e.preventDefault();
+  const picker = document.getElementById("emojiPicker");
+  const messageWrapper = e.currentTarget.closest(".message-wrapper");
+  const messageContent = e.currentTarget.closest(".message-content");
 
-    if (picker.parentElement === messageContent && picker.classList.contains("active")) {
-        picker.classList.remove("active");
-        messageWrapper.classList.remove("force-actions");
-        return;
-    }
+  if (
+    picker.parentElement === messageContent &&
+    picker.classList.contains("active")
+  ) {
+    picker.classList.remove("active");
+    messageWrapper.classList.remove("force-actions");
+    return;
+  }
 
-    document.querySelectorAll(".emoji-picker.active").forEach((el) => el.classList.remove("active"));
-    document.querySelectorAll(".message-wrapper.force-actions").forEach((el) => el.classList.remove("force-actions"));
+  document
+    .querySelectorAll(".emoji-picker.active")
+    .forEach((el) => el.classList.remove("active"));
+  document
+    .querySelectorAll(".message-wrapper.force-actions")
+    .forEach((el) => el.classList.remove("force-actions"));
 
-    messageContent.appendChild(picker);
-    picker.innerHTML = reactionEmojis.map(emoji => 
+  messageContent.appendChild(picker);
+  picker.innerHTML = reactionEmojis
+    .map(
+      (emoji) =>
         `<div class="emoji-option" onclick="sendReaction('${msgId}','${emoji}')">${emoji}</div>`
-    ).join("");
+    )
+    .join("");
 
-    picker.classList.add("active");
-    messageWrapper.classList.add("force-actions");
+  picker.classList.add("active");
+  messageWrapper.classList.add("force-actions");
 }
 
 function sendReaction(msgId, emoji) {
-    ws.send(JSON.stringify({ type: "reaction", msgId, emoji }));
-    addReaction(msgId, emoji);
-    document.getElementById("emojiPicker").classList.remove("active");
+  ws.send(JSON.stringify({ type: "reaction", msgId, emoji }));
+  addReaction(msgId, emoji);
+  document.getElementById("emojiPicker").classList.remove("active");
 }
 
 document.addEventListener("click", (e) => {
-    const picker = document.getElementById("emojiPicker");
-    if (!e.target.closest(".action-btn") && !e.target.closest(".emoji-picker")) {
-        picker.classList.remove("active");
-        document.querySelectorAll(".message-wrapper.force-actions").forEach(el => el.classList.remove("force-actions"));
-    }
+  const picker = document.getElementById("emojiPicker");
+  if (!e.target.closest(".action-btn") && !e.target.closest(".emoji-picker")) {
+    picker.classList.remove("active");
+    document
+      .querySelectorAll(".message-wrapper.force-actions")
+      .forEach((el) => el.classList.remove("force-actions"));
+  }
 });
 
 function addReaction(msgId, emoji) {
-    const box = document.querySelector(`[data-msg-id="${msgId}"] .reactions`);
-    if (!box) return;
-    let item = box.querySelector(`[data-emoji="${emoji}"]`);
-    if (item) {
-        let count = parseInt(item.querySelector("span").textContent);
-        item.querySelector("span").textContent = count + 1;
-    } else {
-        box.innerHTML += `<div class="reaction-item" data-emoji="${emoji}">${emoji} <span>1</span></div>`;
-    }
+  const box = document.querySelector(`[data-msg-id="${msgId}"] .reactions`);
+  if (!box) return;
+  let item = box.querySelector(`[data-emoji="${emoji}"]`);
+  if (item) {
+    let count = parseInt(item.querySelector("span").textContent);
+    item.querySelector("span").textContent = count + 1;
+  } else {
+    box.innerHTML += `<div class="reaction-item" data-emoji="${emoji}">${emoji} <span>1</span></div>`;
+  }
 }
 
 function updateUsers(users) {
-    document.getElementById("onlineCount").textContent = users.length;
-    document.getElementById("userList").innerHTML = users.map((u) => {
-        const isMe = u.user === username;
-        return `
+  document.getElementById("onlineCount").textContent = users.length;
+  document.getElementById("userList").innerHTML = users
+    .map((u) => {
+      const isMe = u.user === username;
+      return `
             <div class="user-item ${isMe ? "me" : ""}">
                 <div class="user-avatar"><img src="${u.avatar}"></div>
-                <div class="user-name">${u.user} ${isMe ? `<span class="you-label">(Bạn)</span>` : ""}</div>
+                <div class="user-name">${u.user} ${
+        isMe ? `<span class="you-label">(Bạn)</span>` : ""
+      }</div>
             </div>`;
-    }).join("");
+    })
+    .join("");
 }
 
 function setReply(id, user) {
-    replyingTo = id;
-    document.getElementById("replyBar").classList.add("active");
-    document.getElementById("replyToUser").textContent = user;
-    document.getElementById("replyToText").textContent = messages[id]?.message || "";
+  replyingTo = id;
+  document.getElementById("replyBar").classList.add("active");
+  document.getElementById("replyToUser").textContent = user;
+  document.getElementById("replyToText").textContent =
+    messages[id]?.message || "";
 }
 
 function cancelReply() {
-    replyingTo = null;
-    document.getElementById("replyBar").classList.remove("active");
+  replyingTo = null;
+  document.getElementById("replyBar").classList.remove("active");
 }
 
 function recallMsg(msgId) {
-    if (confirm("Bạn muốn thu hồi tin nhắn này?")) {
-        ws.send(JSON.stringify({ type: "recall", msgId }));
-    }
+  if (confirm("Bạn muốn thu hồi tin nhắn này?")) {
+    ws.send(JSON.stringify({ type: "recall", msgId }));
+  }
 }
 
 function recallMessage(msgId) {
-    const msgWrapper = document.querySelector(`[data-msg-id="${msgId}"]`);
-    if (!msgWrapper) return;
-    const msgDiv = msgWrapper.querySelector(".message");
-    msgDiv.innerHTML = "<i>Tin nhắn đã bị thu hồi</i>";
-    msgDiv.classList.add("recalled");
-    const actions = msgWrapper.querySelector(".message-actions");
-    if (actions) actions.remove();
+  const msgWrapper = document.querySelector(`[data-msg-id="${msgId}"]`);
+  if (!msgWrapper) return;
+  const msgDiv = msgWrapper.querySelector(".message");
+  msgDiv.innerHTML = "<i>Tin nhắn đã bị thu hồi</i>";
+  msgDiv.classList.add("recalled");
+  const actions = msgWrapper.querySelector(".message-actions");
+  if (actions) actions.remove();
 }
 
 function addSystem(text) {
-    const d = document.createElement("div");
-    d.className = "system-message";
-    d.textContent = text;
-    document.getElementById("messages").appendChild(d);
+  const d = document.createElement("div");
+  d.className = "system-message";
+  d.textContent = text;
+  document.getElementById("messages").appendChild(d);
 }
 
 function toggleSidebar() {
-    const sidebar = document.querySelector(".sidebar");
-    const overlay = document.getElementById("sidebar-overlay");
-    if (sidebar && overlay) {
-        sidebar.classList.toggle("active");
-        overlay.classList.toggle("active");
-    }
+  const sidebar = document.querySelector(".sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  if (sidebar && overlay) {
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+  }
 }
 
 document.getElementById("userList").addEventListener("click", function (e) {
-    if (window.innerWidth <= 768 && e.target.closest(".user-item")) {
-        toggleSidebar();
-    }
+  if (window.innerWidth <= 768 && e.target.closest(".user-item")) {
+    toggleSidebar();
+  }
 });
 
 document.getElementById("messages").addEventListener("scroll", function () {
-    const picker = document.getElementById("emojiPicker");
-    if (window.innerWidth <= 768 && picker.classList.contains("active")) {
-        picker.classList.remove("active");
-        document.querySelectorAll(".force-actions").forEach(el => el.classList.remove("force-actions"));
-    }
+  const picker = document.getElementById("emojiPicker");
+  if (window.innerWidth <= 768 && picker.classList.contains("active")) {
+    picker.classList.remove("active");
+    document
+      .querySelectorAll(".force-actions")
+      .forEach((el) => el.classList.remove("force-actions"));
+  }
 });

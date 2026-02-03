@@ -56,22 +56,9 @@
             
                 <h2 id="chatTitle">Kênh Chat Chung</h2>
                 
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <button onclick="startCall()" 
-                            class="header-action-btn call-btn" 
-                            style="display: flex; align-items: center; gap: 6px; background-color: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(39, 174, 96, 0.3);"
-                            onmouseover="this.style.backgroundColor='#2ecc71'; this.style.transform='translateY(-1px)'"
-                            onmouseout="this.style.backgroundColor='#27ae60'; this.style.transform='translateY(0)'">
-                        📞 <span class="btn-text">Gọi</span>
-                    </button>
-                
-                    <button onclick="outRoom()" 
-                            class="header-action-btn exit-btn" 
-                            style="display: flex; align-items: center; gap: 6px; background-color: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);"
-                            onmouseover="this.style.backgroundColor='#ff7675'; this.style.transform='translateY(-1px)'"
-                            onmouseout="this.style.backgroundColor='#e74c3c'; this.style.transform='translateY(0)'">
-                        🚪 <span class="btn-text">Thoát</span>
-                    </button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="startCall()" class="header-action-btn call-btn">📞 <span class="btn-text">Gọi</span></button>
+                    <button onclick="outRoom()" class="header-action-btn exit-btn">🚪 <span class="btn-text">Thoát</span></button>
                 </div>
             </div>
             
